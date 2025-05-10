@@ -1,0 +1,14 @@
+.idea/
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.log
+*.tmp
+.env
+*.env
+secrets/
+dist/
+build/
+*.egg-info/

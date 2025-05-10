@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Arxiv Search</title>
+    <style>
+        :root {
+            --primary-color: #804e72; /* основной цвет */
+            --primary-hover-color: #54334b; /* цвет при наведении */
+            --border-radius: 10px; /* закругление  */
+        }
+
+        body {
+            font-family: 'Arial Bold', sans-serif;
+            margin: 0;
+            padding: 50px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .search { /* кнопка найти */
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 11px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .search:hover {
+            background-color: var(--primary-hover-color);
+        }
+
+        .input-group {
+            margin: 0 auto;
+        }
+
+        .btn-outline-primary { /* кнопка перевести аннотацию */
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .results {/* надпись результаты поиска */
+            font-size: 20px;
+            margin-top: 40px; /* отступ сверху */
+            border: 1px solid #54334b;
+            border-radius: var(--border-radius);
+            text-align: center;
+            padding: 10px 20px;
+        }
+
+        .translateResult {/* надпись результат перевода */
+            font-size: 18px;
+            margin-top: 10px; /* отступ сверху */
+            text-align: center;
+            padding: 10px 10px;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-hover-color);
+        }
+
+        .card h4 { /* авторы, аннотация */
+            line-height: 2;
+            font-size: 20px;
+            margin: 0 auto;
+            color: #613d57;
+        }
+
+        .article {
+            border: 1px solid #54334b;
+            border-radius: var(--border-radius);
+            padding: 10px 20px;
+        }
+
+        .card h3 { /* название статьи */
+            line-height: 2;
+            font-size: 18px;
+            text-align: center;
+            padding: 5px 0;
+            margin: 0 auto;
+        }
+
+        .card ul li { /* список */
+            line-height: 1.5;
+            padding: 5px 0;
+        }
+
+        .card p { /* аннотация текст */
+            text-align: justify;
+            padding: 5px 0;
+            line-height: 1.5;
+        }
+
+        .input-group input {
+            padding: 10px 20px;
+            border: 1px solid;
+            border-radius: var(--border-radius);
+        }
+
+        .input-group button {
+            padding: 11px 70px;
+        }
+
+    </style>
+</head>
+<body>
+<main class="container">
+    <hr>
+    <section class="container-fluid">
+        <h2 class="center">Поиск статей по ключевым словам</h2>
+        <form method="get" action="/Titles">
+            <div class="col-auto">
+                <div class="input-group mb-3">
+                    <div class="center">
+                        <input type="text" name="keyWords" class="form-control" placeholder="Enter a key word"
+                               aria-label="Search" aria-describedby="button-addon2"/>
+                        <button class="btn search" type="submit" id="button-addon2" data-mdb-ripple-color="dark">
+                            Найти
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <h2 class="center">Поиск информации о статье по ID</h2>
+        <form method="get" action="/Article">
+            <div class="col-auto">
+                <div class="input-group mb-3">
+                    <div class="center">
+                        <input type="text" name="id" class="form-control" placeholder="Enter ID" aria-label="Search" aria-describedby="button-addon2"/>
+                        <button class="btn search" type="submit" id="button-addon2" data-mdb-ripple-color="dark">
+                            Найти
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        {% if titleSearch %}
+        <h2 class="center results">Результаты поиска</h2>
+        {% if titles %}
+        <section class="container-fluid">
+            <br>
+            <div class="card">
+                <ul class="list-group list-group-flush">
+                    {% for title in titles %}
+                    <li class="list-group-item">
+                        {{ loop.index }}. {{ title }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+        {% else %}
+        <section class="container-fluid">
+            <h2 class="center">Не найдено совпадений по ключевым словам</h2>
+        </section>
+        {% endif %}
+        {% endif %}
+
+        {% if articleSearch %}
+        <h2 class="center results">Результаты поиска</h2>
+        {% if article %}
+        <section class="container-fluid">
+            <br>
+            <div class="card article">
+                <h3>{{ article.name }}</h3>
+                <h4>Авторы:</h4>
+                <ul>
+                    {% for author in article.authors %}
+                    <li>{{ author }}</li>
+                    {% endfor %}
+                </ul>
+                <h4>Аннотация:</h4>
+                <p>{{ article.description }}</p>
+
+                <form method="get" action="/Article/translate">
+                    <div class="center">
+                        <input type="hidden" name="id" value="{{ article.id }}">
+                        <div class="col-auto">
+                            <div class="input-group mb-3">
+                                <button class="btn btn-outline-primary" type="submit" id="button-addon2" data-mdb-ripple-color="dark">
+                                    Перевести аннотацию
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                {% if translated %}
+                <h2 class="center translateResult">Результат перевода</h2>
+                <div class="center">
+                    <div class="card">
+                        <p>{{ translate }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+        {% else %}
+        <section class="container-fluid">
+            <h2 class="center">Статья с таким ID не найдена</h2>
+        </section>
+        {% endif %}
+        {% endif %}
+    </section>
+</main>
+</body>
+</html>
